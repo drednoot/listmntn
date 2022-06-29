@@ -1,3 +1,43 @@
-#!/usr/bin/bash
+#!/bin/sh
+
+CONFDIR="$HOME/.config/listmntn"
+CACHEDIR="$HOME/.cache/listmntn"
+mkdir -p $CONFDIR
+mkdir -p $CACHEDIR
+
+# ---------------------------------      THE EASY PART      ---------------------------------
+
+compile_games_list ()
+{
+	echo $(cat $CONFDIR/games | sed -e 's/\(^.*\)\son-pause/\\033[31m\1\\033[39m/g' -e 's/\(^.*\)\splaying/\\033[32m\1\\033[39m/g' -e 's/\(^.*\)\splanned/\1/g' | awk '{print $0,"->"}') | sed 's/ ->$//g'
+}
+
+compile_watchables_list ()
+{
+	echo "$(cat $CONFDIR/watchables | sed -e 's/\(.*\) -/\1/g' -e 's/\(.*\) +/\\033[32m\1\\033[39m/g' -e 's/\(.*\) \(.*\) \/ \(.*\) 1/\1 \\033[1m\2\\033[22m \/ \3/g' -e 's/\(.*\) \(.*\) \/ \(.*\) 2/\1 \2 \/ \\033[1m\3\\033[22m/g' )"
+}
+
+compile_current_watchable ()
+{
+	awk '/current_watchable / {$1=""; print $0}' $CONFDIR/others | cut -c 2-
+}
+
+compile_film_list ()
+{
+	awk '/films/ {$1=""; print $0}' $CONFDIR/others | cut -c 2- | tr ';' '\n' | awk '{print " " NR ") " $0}'
+}
+
+compile_whole_list ()
+{
+	echo "games"
+	compile_games_list
+	echo ""
+	echo "watchables --- $(compile_current_watchable)"
+	compile_watchables_list
+	compile_film_list
+}
+
+# ---------------------------------      THE HARD PART      ---------------------------------
 
 
+compile_whole_list
