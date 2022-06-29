@@ -5,7 +5,7 @@ CACHEDIR="$HOME/.cache/listmntn"
 mkdir -p $CONFDIR
 mkdir -p $CACHEDIR
 
-# ---------------------------------      THE EASY PART      ---------------------------------
+# ---------------------      THE EASY PART      ---------------------
 
 compile_games_list ()
 {
@@ -17,27 +17,95 @@ compile_watchables_list ()
 	echo "$(cat $CONFDIR/watchables | sed -e 's/\(.*\) -/\1/g' -e 's/\(.*\) +/\\033[32m\1\\033[39m/g' -e 's/\(.*\) \(.*\) \/ \(.*\) 1/\1 \\033[1m\2\\033[22m \/ \3/g' -e 's/\(.*\) \(.*\) \/ \(.*\) 2/\1 \2 \/ \\033[1m\3\\033[22m/g' )"
 }
 
-compile_current_watchable ()
-{
-	awk '/current_watchable / {$1=""; print $0}' $CONFDIR/others | cut -c 2-
-}
-
-compile_film_list ()
-{
-	awk '/films/ {$1=""; print $0}' $CONFDIR/others | cut -c 2- | tr ';' '\n' | awk '{print " " NR ") " $0}'
-}
-
 compile_whole_list ()
 {
 	echo "games"
 	compile_games_list
 	echo ""
-	echo "watchables --- $(compile_current_watchable)"
 	compile_watchables_list
-	compile_film_list
 }
 
-# ---------------------------------      THE HARD PART      ---------------------------------
+# ---------------------      THE HARD PART      ---------------------
 
+create_config_files ()
+{
+	[ -f $CONFDIR/games ] || touch $CONFDIR/games
+	[ -f $CONFDIR/watchables ] || touch $CONFDIR/watchables
+}
 
+action_main_menu ()
+{
+	while [ -z $ex ]
+	do
+		clear
+		compile_whole_list
+		echo ""
+		echo "Choose action:"
+		echo "1) Change games"
+		echo "2) Change watchables"
+		echo "3) Exit"
+		read choice
+		case "$choice" in
+			1) action_change_games
+			;;
+			2) echo 2
+			;;
+			3) exit 0
+			;;
+		esac
+	done
+}
+
+compile_change_games ()
+{
+	echo "$(awk '{print NR, $0}' $CONFDIR/games | sed -e 's/on-pause/\\033[31mon-pause\\033[39m/g' -e 's/playing/\\033[32mplaying\\033[39m/g')"
+}
+
+action_change_games ()
+{
+	while [ -z $ex ]
+	do
+		clear
+		compile_change_games
+		echo ""
+		compile_games_list
+		echo ""
+		echo "Choose action:"
+		echo "1) Add game"
+		echo "2) Remove game"
+		echo "3) Change the status of a game"
+		echo "4) Go back to the main menu"
+		read choice
+		case "$choice" in
+			1) echo 1
+			;;
+			2) echo 2
+			;;
+			3) echo 3
+			;;
+			4) return 0
+			;;
+		esac
+	done
+}
+
+action_add_game ()
+{
+	clear
+	compile_change_games
+	echo ""
+	compile_games_list
+	echo ""
+	echo "What item number should the game be added after? [last]"
+	read num
+	echo "Insert item name"
+	read name
+	echo "Insert item status [planned]"
+}
+
+# ---------------------      THE MAIN PART      ---------------------
+
+# create_config_files
+# action_main_menu
+# action_change_games
 compile_whole_list
