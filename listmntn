@@ -9,7 +9,7 @@ mkdir -p $CACHEDIR
 
 compile_games_list ()
 {
-	echo $(cat $CONFDIR/games | sed -e 's/\(^.*\)\son-pause/\\033[31m\1\\033[39m/g' -e 's/\(^.*\)\splaying/\\033[32m\1\\033[39m/g' -e 's/\(^.*\)\splanned/\1/g' | awk '{print $0,"->"}') | sed 's/ ->$//g'
+	echo $(cat $CONFDIR/games | sed -e 's/\(^.*\)\son-pause/\\033[31m\1\\033[39m/g' -e 's/\(^.*\)\splaying/\\033[32m\1\\033[39m/g' -e 's/\(^.*\)\sinstalled/\\033[34m\1\\033[39m/g' -e 's/\(^.*\)\splanned/\1/g' | awk '{print $0,"->"}') | sed 's/ ->$//g'
 }
 
 compile_watchables_list ()
